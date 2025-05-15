@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Monitoreo CNC</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.2/css/bulma.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <div class="container py-4">
+        <div class="d-flex flex-wrap align-items-center justify-content-between">
+        <h4 class="mx-auto text-center">IoT CNC</h4>
+        <div class="d-flex gap-3">
+            <button type="button" data-bs-toggle="modal" data-bs-target="#registroNuevo">
+                <img src="assets/img/agregar.png" class="icono">
+            </button>
+        </div>
+    </div>
+
+<!--Modal nuevo registro-->
+    <div class="modal fade" id="registroNuevo" tabindex="-1" aria-labelledby="modalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabelNuevo">Nuevo Proyecto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">S0</label>
+                            <input type="text" id="sale_order" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre del Proyecto</label>
+                            <input type="text" id="project_name" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha y hora de alta</label>
+                            <input type="text" id="fecha_alta" class="form-control form-control-sm" disabled>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="crearProyecto()" id="btnEnviarNuevo" data-bs-dismiss="modal">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Modal editar pendiente-->
+    <div class="modal fade" id="editarPendiente" tabindex="-1" aria-labelledby="modalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabelEditar">Editar Proyecto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">S0</label>
+                            <input type="text" id="sale_order_edPend" class="form-control form-control-sm" disabled>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre del Proyecto</label>
+                            <input type="text" id="project_name_edPend" class="form-control form-control-sm" disabled>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha y hora de alta</label>
+                            <input type="text" id="fecha_alta_edPend" class="form-control form-control-sm" disabled>
+                        </div> 
+                    </div>
+                    <hr>
+                    <h6>Inicio de proceso humano</h6>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">CNC Correspondiente</label>
+                            <select class="form-select" id="cncSelect" aria-label="Default select example">
+                                <option selected>Selecciona</option>
+                                <option value="Router 1">Router 1</option>
+                                <option value="Router 2">Router 2</option>
+                                <option value="Router 3">Router 3</option>
+                                <option value="Laser_FO">Laser_FO</option>
+                                <option value="LaserC022">LaserC022</option>
+                                <option value="TPS 1">TPS 1</option>
+                                <option value="TPS 2">TPS 2</option>
+                              </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha y hora de comienzo</label>
+                            <input type="text" id="fecha_inicio_pend" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha y hora de finalización</label>
+                            <input type="text" id="fecha_fin_pend" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btnEnviarEditar" data-id="" data-bs-dismiss="modal">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--Modal editar activo-->
+    <div class="modal fade" id="editarActivo" tabindex="-1" aria-labelledby="modalLabel">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalLabel">Nuevo Proyecto</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">S0</label>
+                            <input type="text" id="sale_order" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Nombre del Proyecto</label>
+                            <input type="text" id="proyect_name" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha y hora de alta</label>
+                            <input type="text" id="proyect_name" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                    <hr>
+                    <h6>Inicio de proceso humano</h6>
+                    <hr>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="form-label">CNC Correspondiente</label>
+                            <select class="form-select" aria-label="Default select example">
+                                <option selected>Seleccióna</option>
+                                <option value="Router 1">Router 1</option>
+                                <option value="Router 2">Router 2</option>
+                                <option value="Router 3">Router 3</option>
+                                <option value="Laser_FO">Laser_FO</option>
+                                <option value="LaserC022">LaserC022</option>
+                                <option value="TPS 1">TPS 1</option>
+                                <option value="TPS 2">TPS 2</option>
+                              </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha y hora de comienzo</label>
+                            <input type="text" id="proyect_name" class="form-control form-control-sm">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Fecha y hora de finalización</label>
+                            <input type="text" id="proyect_name" class="form-control form-control-sm">
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" id="btnEnviar" data-bs-dismiss="modal">Enviar</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+        <!--Modal editar CNC-->
+        <div class="modal fade" id="editarCnc" tabindex="-1" aria-labelledby="modalLabel">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">Proceso CNC</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                    </div>
+                    <div class="modal-body text-center">
+                        <!-- Contenedor para los botones de Iniciar/Detener -->
+                        <div id="botonesInicioDetener" class="mb-3">
+                            <button type="button" id="btnIniciar" class="btn btn-success btn-lg">
+                                <img src="assets/img/iniciar.png" class="icono me-2"> Iniciar
+                            </button>
+                        </div>
+                        <!-- Contenedor para los botones de Pausar/Reiniciar -->
+                        <div id="botonesPausarReiniciar">
+                            <button type="button" id="btnPausar" class="btn btn-warning btn-lg">
+                                <img src="assets/img/pausa.png" class="icono me-2"> Pausar
+                            </button>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" id="btnEnviar" data-bs-dismiss="modal">Enviar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" href="#pendientes" data-bs-toggle="tab">Pendientes</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#activos" data-bs-toggle="tab">Activos</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#parados" data-bs-toggle="tab">Parados</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#terminados" data-bs-toggle="tab">Terminados</a>
+        </li>
+    </ul>
+
+    <div class="tab-content mt-3">
+        <div class="tab-pane fade show active" id="pendientes">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>S0</th>
+                            <th>Nombre del proyecto</th>
+                            <th>Fecha de Creación</th>
+                            <th>CNC</th>
+                            <th>Acciónes</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- <tr>
+                            <td>S0001</td>
+                            <td>KFC AGS</td>
+                            <td>30/11/2024 10:02</td>
+                            <td>Router 2</td>
+                            <td>
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#editarPendiente" class="btn-espaciado">
+                                    <img src="assets/img/editar.png" class="icono">
+                                </button>
+                                
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#miModal" class="btn-espaciado">
+                                    <img src="assets/img/eliminar.png" class="icono">
+                                </button>
+                            </td>
+                        </tr> -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div class="tab-pane fade" id="activos">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-primary">
+                            <tr>
+                                <th>S0</th>
+                                <th>Nombre del proyecto</th>
+                                <th>Fecha de Creación</th>
+                                <th>Fecha de Inicio</th>
+                                <th>CNC</th>
+                                <th>Acciónes</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>S0001</td>
+                                <td>KFC AGS</td>
+                                <td>30/11/2024 10:02</td>
+                                <td>30/11/2024 11:06</td>
+                                <td>Router 2</td>
+                            <td>
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#editarActivo" class="btn-espaciado">
+                                    <img src="assets/img/editar.png" class="icono">
+                                </button>
+
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#editarCnc" class="btn-espaciado">
+                                    <img src="assets/img/cnc.png" class="icono">
+                                </button>
+                                
+                                <button type="button" data-bs-toggle="modal" data-bs-target="#miModal" class="btn-espaciado">
+                                    <img src="assets/img/eliminar.png" class="icono">
+                                </button>
+                            </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        <div class="tab-pane fade" id="parados">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-primary">
+                        <tr>
+                            <th>S0</th>
+                            <th>Nombre del proyecto</th>
+                            <th>Fecha y hora de inicio</th>
+                            <th>Fecha y hora de paro</th>
+                            <th>Motivo</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>S0001</td>
+                            <td>KFC AGS</td>
+                            <td>30/11/2024 10:02</td>
+                            <td>30/11/2024 10:02</td>
+                            <td>Se rompio la broca</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <div class="tab-pane fade" id="terminados">
+            <div class="table-responsive">
+                <table class="table table-bordered table-striped table-hover">
+                    <thead class="table-primary">
+                        <th>S0</th>
+                        <th>Nombre del proyecto</th>
+                        <th>Tiempo de Trabajo en CNC</th>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <div id="messages"></div>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+    <script src="script.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+</body>
+</html>
